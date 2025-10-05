@@ -1,0 +1,61 @@
+name: CI with Caching
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Cache dependencies
+        id: cache-6657823
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache
+            node_modules
+            ~/.npm
+          key: cache-6657823-${{ runner.os }}-${{ hashFiles('**/package-lock.json', '**/requirements.txt') }}
+          restore-keys: |
+            cache-6657823-${{ runner.os }}-
+            cache-6657823-
+      
+      - name: prime-cache-6657823
+        run: |
+          if [ "${{ steps.cache-6657823.outputs.cache-hit }}" == "true" ]; then
+            echo "✅ Cache HIT for cache-6657823"
+            echo "Cache was successfully restored"
+          else
+            echo "❌ Cache MISS for cache-6657823"
+            echo "Building new cache"
+          fi
+          echo "Cache key: cache-6657823-${{ runner.os }}"
+          echo "Cache status: ${{ steps.cache-6657823.outputs.cache-hit }}"
+      
+      - name: Install dependencies (simulate)
+        run: |
+          echo "Installing dependencies..."
+          mkdir -p node_modules ~/.cache ~/.npm
+          echo "dependency-data-$(date +%s)" > ~/.cache/deps.txt
+          echo "Dependencies installed"
+      
+      - name: Run tests
+        run: |
+          echo "Running tests with cached dependencies..."
+          if [ -f ~/.cache/deps.txt ]; then
+            echo "Found cached data: $(cat ~/.cache/deps.txt)"
+          fi
+          echo "Tests completed successfully"
+      
+      - name: Build summary
+        run: |
+          echo "### Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Cache Key: cache-6657823" >> $GITHUB_STEP_SUMMARY
+          echo "- Cache Hit: ${{ steps.cache-6657823.outputs.cache-hit }}" >> $GITHUB_STEP_SUMMARY
+          echo "- OS: ${{ runner.os }}" >> $GITHUB_STEP_SUMMARY
