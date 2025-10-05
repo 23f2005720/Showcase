@@ -1,0 +1,23 @@
+name: Email Test Workflow
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 23f2005720@ds.study.iitm.ac.in
+        run: echo "Hello, world!"
+      
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Run additional test
+        run: |
+          echo "Workflow triggered successfully"
+          echo "Email verification step completed"
+          date
